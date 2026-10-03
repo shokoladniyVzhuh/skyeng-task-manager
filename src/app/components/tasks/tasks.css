@@ -1,0 +1,34 @@
+.tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+mat-card {
+  margin: 0 10%;
+}
+
+mat-card-header {
+  padding: 10px;
+}
+
+mat-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 20px;
+}
+
+mat-card-footer > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.task-status {
+  font-weight: 500;
+}
