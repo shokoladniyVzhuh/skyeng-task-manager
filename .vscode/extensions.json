@@ -1,0 +1,14 @@
+{
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=827846
+  "recommendations": [
+    "angular.ng-template",
+    "johnpapa.angular2",
+    "esbenp.prettier-vscode",
+    "editorconfig.editorconfig",
+    "k--kato.intellij-idea-keybindings",
+    "formulahendry.auto-close-tag",
+    "formulahendry.auto-rename-tag",
+    "pkief.material-icon-theme",
+    "usernamehw.errorlens"
+  ]
+}
