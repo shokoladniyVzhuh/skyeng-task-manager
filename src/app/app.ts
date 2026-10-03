@@ -1,5 +1,4 @@
 import { AsyncPipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -22,6 +21,7 @@ import {
 } from 'rxjs';
 
 import { SortOrder, StatusFilter, Task, TaskStatus } from './task.types';
+import { TasksApi } from './tasks-api';
 
 interface TasksState {
   tasks: Task[];
@@ -73,7 +73,7 @@ const loadingState: TasksState = {
   `,
 })
 export class App {
-  private readonly http = inject(HttpClient);
+  private readonly tasksApi = inject(TasksApi);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly statusFilter$ = new BehaviorSubject<StatusFilter>('all');
@@ -89,8 +89,8 @@ export class App {
     this.statusChangeError.set(null);
     this.pendingStatusIds.update((ids) => new Set(ids).add(change.id));
 
-    this.http
-      .patch<Task>(`http://localhost:3000/tasks/${change.id}`, { status: change.status })
+    this.tasksApi
+      .updateTaskStatus(change.id, change.status)
       .pipe(
         finalize(() => {
           this.pendingStatusIds.update((ids) => {
@@ -124,9 +124,7 @@ export class App {
     this.reloadTasks$.pipe(startWith(undefined)),
   ]).pipe(
     switchMap(([status]) => {
-      const params: Record<string, string> = status === 'all' ? {} : { status };
-
-      return this.http.get<Task[]>('http://localhost:3000/tasks', { params }).pipe(
+      return this.tasksApi.getTasks(status).pipe(
         map((tasks): TasksState => ({
           tasks,
           loading: false,
