@@ -67,6 +67,31 @@ describe('TasksPage', () => {
     expect(element.textContent).toContain('Prepare report');
   });
 
+  it('changes the displayed sort order without another HTTP request', () => {
+    const fixture = TestBed.createComponent(TasksPage);
+    const http = TestBed.inject(HttpTestingController);
+    const element = fixture.nativeElement as HTMLElement;
+    const newerTask: Task = {
+      ...task,
+      id: 2,
+      title: 'Newer task',
+      createdAt: '2026-10-02T09:30:00.000Z',
+    };
+    fixture.detectChanges();
+    http.expectOne('http://localhost:3000/tasks').flush([task, newerTask]);
+    fixture.detectChanges();
+
+    const titles = () =>
+      [...element.querySelectorAll('mat-card-title')].map((title) => title.textContent?.trim());
+    expect(titles()).toEqual(['Newer task', 'Prepare report']);
+
+    fixture.componentInstance.sortOrder$.next('oldest');
+    fixture.detectChanges();
+
+    expect(titles()).toEqual(['Prepare report', 'Newer task']);
+    http.expectNone('http://localhost:3000/tasks');
+  });
+
   it('opens the dialog from the filters and confirms creation under the active filter', async () => {
     const fixture = TestBed.createComponent(TasksPage);
     const http = TestBed.inject(HttpTestingController);
@@ -127,9 +152,10 @@ describe('TasksPage', () => {
     fixture.detectChanges();
 
     const change = { id: 1, status: 'in_progress' as const };
-    fixture.componentInstance.updateTaskStatus(change);
+    element.querySelector<HTMLButtonElement>('mat-card button')!.click();
     const firstPatch = http.expectOne('http://localhost:3000/tasks/1');
     expect(firstPatch.request.method).toBe('PATCH');
+    expect(firstPatch.request.body).toEqual({ status: 'in_progress' });
     fixture.componentInstance.updateTaskStatus(change);
     http.expectNone('http://localhost:3000/tasks/1');
     fixture.detectChanges();

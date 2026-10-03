@@ -2,11 +2,11 @@ import { Component, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
-import { SortOrder, StatusFilter } from '../../task.types';
+import { SortOrder, StatusFilter } from '../task.types';
 
 @Component({
   imports: [MatFormField, MatLabel, MatSelect, MatOption, MatButtonModule],
-  selector: 'app-filters',
+  selector: 'app-task-filters',
   template: `
     <div class="filters">
       <div class="select-status">
@@ -35,9 +35,9 @@ import { SortOrder, StatusFilter } from '../../task.types';
       </button>
     </div>
   `,
-  styleUrl: 'filters.css',
+  styleUrl: './task-filters.css',
 })
-export class Filters {
+export class TaskFilters {
   readonly status = input.required<StatusFilter>();
   readonly order = input.required<SortOrder>();
 

@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
-import { CreateTaskDialog } from './createTaskDialog';
+import { CreateTaskDialog } from './create-task-dialog';
 
 describe('CreateTaskDialog', () => {
   const dialogRef = { disableClose: false, close: vi.fn() };

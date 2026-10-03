@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { CreateTaskData, Task } from '../../task.types';
-import { TasksApi } from '../../tasks-api';
+import { CreateTaskData, Task } from '../task.types';
+import { TasksApi } from '../tasks-api';
 
 @Component({
   selector: 'app-create-task-dialog',

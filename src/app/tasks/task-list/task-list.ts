@@ -9,7 +9,8 @@ import {
 } from '@angular/material/card';
 
 import { MatAnchor } from '@angular/material/button';
-import { Task, TaskStatus } from '../../task.types';
+import { canChangeTaskStatus, getNextTaskStatus } from '../task-status';
+import { Task, TaskStatus } from '../task.types';
 
 @Component({
   imports: [
@@ -21,7 +22,7 @@ import { Task, TaskStatus } from '../../task.types';
     MatAnchor,
     DatePipe,
   ],
-  selector: 'app-tasks',
+  selector: 'app-task-list',
   template: `
     <div class="tasks">
       @for (task of tasks(); track task.id) {
@@ -37,7 +38,7 @@ import { Task, TaskStatus } from '../../task.types';
           <mat-card-footer>
             <div>
               <span class="task-status">{{ statusLabels[task.status] }}</span>
-              @if (nextStatus[task.status]; as next) {
+              @if (nextStatus(task.status); as next) {
                 <button
                   type="button"
                   matButton="outlined"
@@ -56,9 +57,9 @@ import { Task, TaskStatus } from '../../task.types';
       }
     </div>
   `,
-  styleUrl: 'tasks.css',
+  styleUrl: './task-list.css',
 })
-export class Tasks {
+export class TaskList {
   readonly tasks = input.required<Task[]>();
   readonly pendingStatusIds = input.required<ReadonlySet<number>>();
 
@@ -68,11 +69,7 @@ export class Tasks {
     done: 'Done',
   };
 
-  readonly nextStatus: Record<TaskStatus, TaskStatus | null> = {
-    new: 'in_progress',
-    in_progress: 'done',
-    done: null,
-  };
+  readonly nextStatus = getNextTaskStatus;
 
   readonly changeTaskStatus = output<{
     id: number;
@@ -80,7 +77,7 @@ export class Tasks {
   }>();
 
   requestStatusChange(task: Task, target: TaskStatus) {
-    if (this.pendingStatusIds().has(task.id) || target !== this.nextStatus[task.status]) {
+    if (this.pendingStatusIds().has(task.id) || !canChangeTaskStatus(task.status, target)) {
       return;
     }
 

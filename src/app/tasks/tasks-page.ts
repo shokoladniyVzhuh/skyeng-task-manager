@@ -3,9 +3,9 @@ import { Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { CreateTaskDialog } from './components/createTaskDialog/createTaskDialog';
-import { Filters } from './components/filters/filters';
-import { Tasks } from './components/tasks/tasks';
+import { CreateTaskDialog } from './create-task-dialog/create-task-dialog';
+import { TaskFilters } from './task-filters/task-filters';
+import { TaskList } from './task-list/task-list';
 
 import {
   BehaviorSubject,
@@ -22,6 +22,7 @@ import {
 
 import { SortOrder, StatusFilter, Task, TaskStatus } from './task.types';
 import { TasksApi } from './tasks-api';
+import { sortTasks } from './sort-tasks';
 
 interface TasksState {
   tasks: Task[];
@@ -36,11 +37,11 @@ const loadingState: TasksState = {
 };
 
 @Component({
-  imports: [AsyncPipe, MatButtonModule, MatSnackBarModule, Filters, Tasks],
+  imports: [AsyncPipe, MatButtonModule, MatSnackBarModule, TaskFilters, TaskList],
   selector: 'app-tasks-page',
   styleUrl: './tasks-page.scss',
   template: `
-    <app-filters
+    <app-task-filters
       [status]="statusFilter$.value"
       [order]="sortOrder$.value"
       (changeStatus)="statusFilter$.next($event)"
@@ -61,7 +62,7 @@ const loadingState: TasksState = {
       } @else if (state.tasks.length === 0) {
         <p>{{ statusFilter$.value === 'all' ? 'No tasks yet.' : 'No tasks with this status.' }}</p>
       } @else {
-        <app-tasks
+        <app-task-list
           [tasks]="state.tasks"
           [pendingStatusIds]="pendingStatusIds()"
           (changeTaskStatus)="updateTaskStatus($event)"
@@ -158,12 +159,4 @@ export class TasksPage {
       tasks: sortTasks(state.tasks, order),
     })),
   );
-}
-
-function sortTasks(tasks: Task[], order: SortOrder): Task[] {
-  return [...tasks].sort((a, b) => {
-    const difference = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-
-    return order === 'oldest' ? difference : -difference;
-  });
 }
