@@ -1,0 +1,43 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Plan the weekly review",
+      "description": "Outline the topics for the team meeting",
+      "status": "new",
+      "createdAt": "2026-10-01T09:30:00.000Z"
+    },
+    {
+      "id": 2,
+      "title": "Prepare presentation slides",
+      "description": "Add the latest project results",
+      "status": "in_progress",
+      "createdAt": "2026-10-01T12:15:00.000Z"
+    },
+    {
+      "id": 3,
+      "title": "Review project notes",
+      "status": "done",
+      "createdAt": "2026-10-02T08:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "title": "Check the release checklist",
+      "description": "Confirm the remaining steps",
+      "status": "new",
+      "createdAt": "2026-10-02T14:45:00.000Z"
+    },
+    {
+      "id": 5,
+      "title": "Update the project timeline",
+      "status": "in_progress",
+      "createdAt": "2026-10-03T10:20:00.000Z"
+    },
+    {
+      "id": 6,
+      "title": "Set up the task board",
+      "status": "done",
+      "createdAt": "2026-10-03T16:10:00.000Z"
+    }
+  ]
+}
