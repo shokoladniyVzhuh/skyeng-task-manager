@@ -1,11 +1,11 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { CreateTaskData, Task } from '../../task.types';
+import { CreateTaskData, Task } from '../task.types';
+import { TasksApi } from '../tasks-api';
 
 @Component({
   selector: 'app-create-task-dialog',
@@ -63,7 +63,7 @@ import { CreateTaskData, Task } from '../../task.types';
   `,
 })
 export class CreateTaskDialog {
-  private readonly http = inject(HttpClient);
+  private readonly tasksApi = inject(TasksApi);
 
   private readonly dialogRef = inject(MatDialogRef<CreateTaskDialog, Task>);
   readonly nonWhitespacePattern = /\S/;
@@ -93,24 +93,17 @@ export class CreateTaskDialog {
     this.saving.set(true);
     this.dialogRef.disableClose = true;
 
-    this.http
-      .post<Task>('http://localhost:3000/tasks', {
-        title: taskData.title,
-        description: taskData.description,
-        status: 'new',
-        createdAt: new Date().toISOString(),
-      })
-      .subscribe({
-        next: (task) => {
-          this.saving.set(false);
-          this.dialogRef.disableClose = false;
-          this.dialogRef.close(task);
-        },
-        error: () => {
-          this.saving.set(false);
-          this.dialogRef.disableClose = false;
-          this.saveError.set('Could not create the task. Please try again.');
-        },
-      });
+    this.tasksApi.createTask(taskData).subscribe({
+      next: (task) => {
+        this.saving.set(false);
+        this.dialogRef.disableClose = false;
+        this.dialogRef.close(task);
+      },
+      error: () => {
+        this.saving.set(false);
+        this.dialogRef.disableClose = false;
+        this.saveError.set('Could not create the task. Please try again.');
+      },
+    });
   }
 }
