@@ -1,10 +1,8 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
-import { SortOrder, StatusFilter, Task } from '../../task.types';
-import { CreateTaskDialog } from '../createTaskDialog/createTaskDialog';
+import { SortOrder, StatusFilter } from '../../task.types';
 
 @Component({
   imports: [MatFormField, MatLabel, MatSelect, MatOption, MatButtonModule],
@@ -32,7 +30,7 @@ import { CreateTaskDialog } from '../createTaskDialog/createTaskDialog';
           </mat-select>
         </mat-form-field>
       </div>
-      <button matButton="tonal" class="create-task-button" (click)="openCreateTaskDialog()">
+      <button matButton="tonal" class="create-task-button" (click)="createRequested.emit()">
         Create new task
       </button>
     </div>
@@ -46,19 +44,5 @@ export class Filters {
   readonly changeStatus = output<StatusFilter>();
   readonly changeOrder = output<SortOrder>();
 
-  private readonly dialog = inject(MatDialog);
-  readonly taskCreated = output<Task>();
-
-  openCreateTaskDialog() {
-    const ref = this.dialog.open(CreateTaskDialog, {
-      width: '500px',
-      maxWidth: '95vw',
-    });
-
-    ref.afterClosed().subscribe((result: Task | undefined) => {
-      if (result === undefined) return;
-
-      this.taskCreated.emit(result);
-    });
-  }
+  readonly createRequested = output<void>();
 }
