@@ -1,15 +1,26 @@
-import { Component } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, OnDestroy, signal } from '@angular/core';
 
 @Component({
-  imports: [],
+  imports: [DatePipe],
   selector: 'app-header',
   template: `
-    <div>
+    <header>
       <h1>TaskManager</h1>
 
-      <p>data and time</p>
-    </div>
+      <p>{{ now() | date: 'dd.MM.yyyy HH:mm:ss' }}</p>
+    </header>
   `,
-  styles: '',
+  styleUrl: 'header.css',
 })
-export class Header {}
+export class Header implements OnDestroy {
+  readonly now = signal(new Date());
+
+  private readonly timer = setInterval(() => {
+    this.now.set(new Date());
+  }, 1000);
+
+  ngOnDestroy() {
+    clearInterval(this.timer);
+  }
+}
