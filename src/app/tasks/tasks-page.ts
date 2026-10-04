@@ -1,8 +1,10 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CreateTaskDialog } from './create-task-dialog/create-task-dialog';
 import { TaskFilters } from './task-filters/task-filters';
 import { TaskList } from './task-list/task-list';
@@ -20,9 +22,9 @@ import {
   switchMap,
 } from 'rxjs';
 
+import { sortTasks } from './sort-tasks';
 import { SortOrder, StatusFilter, Task, TaskStatus } from './task.types';
 import { TasksApi } from './tasks-api';
-import { sortTasks } from './sort-tasks';
 
 interface TasksState {
   tasks: Task[];
@@ -36,15 +38,26 @@ const loadingState: TasksState = {
   error: null,
 };
 
+function parseStatusFilter(value: string | null): StatusFilter {
+  switch (value) {
+    case 'new':
+    case 'in_progress':
+    case 'done':
+      return value;
+    default:
+      return 'all';
+  }
+}
+
 @Component({
   imports: [AsyncPipe, MatButtonModule, MatSnackBarModule, TaskFilters, TaskList],
   selector: 'app-tasks-page',
   styleUrl: './tasks-page.scss',
   template: `
     <app-task-filters
-      [status]="statusFilter$.value"
+      [status]="selectedStatus()"
       [order]="sortOrder$.value"
-      (changeStatus)="statusFilter$.next($event)"
+      (changeStatus)="selectStatus($event)"
       (changeOrder)="sortOrder$.next($event)"
       (createRequested)="openCreateTaskDialog()"
     />
@@ -60,7 +73,7 @@ const loadingState: TasksState = {
         <p role="alert">{{ state.error }}</p>
         <button type="button" matButton="outlined" (click)="retryLoad()">Try again</button>
       } @else if (state.tasks.length === 0) {
-        <p>{{ statusFilter$.value === 'all' ? 'No tasks yet.' : 'No tasks with this status.' }}</p>
+        <p>{{ selectedStatus() === 'all' ? 'No tasks yet.' : 'No tasks with this status.' }}</p>
       } @else {
         <app-task-list
           [tasks]="state.tasks"
@@ -75,8 +88,17 @@ export class TasksPage {
   private readonly tasksApi = inject(TasksApi);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
-  readonly statusFilter$ = new BehaviorSubject<StatusFilter>('all');
+  readonly statusFilter$ = this.route.queryParamMap.pipe(
+    map((params) => parseStatusFilter(params.get('status'))),
+    distinctUntilChanged(),
+  );
+  readonly selectedStatus = toSignal(this.statusFilter$, {
+    initialValue: parseStatusFilter(this.route.snapshot.queryParamMap.get('status')),
+  });
+
   readonly sortOrder$ = new BehaviorSubject<SortOrder>('newest');
 
   readonly statusChangeError = signal<string | null>(null);
@@ -129,7 +151,7 @@ export class TasksPage {
   }
 
   private readonly loadedState$ = combineLatest([
-    this.statusFilter$.pipe(distinctUntilChanged()),
+    this.statusFilter$,
     this.reloadTasks$.pipe(startWith(undefined)),
   ]).pipe(
     switchMap(([status]) => {
@@ -159,4 +181,14 @@ export class TasksPage {
       tasks: sortTasks(state.tasks, order),
     })),
   );
+
+  selectStatus(status: StatusFilter): Promise<boolean> {
+    return this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        status: status === 'all' ? null : status,
+      },
+      queryParamsHandling: 'merge',
+    });
+  }
 }

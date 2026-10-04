@@ -1,59 +1,40 @@
-# TaskManager
+# Task Manager
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.1.
+Тестовое задание Skyeng: SPA на Angular 22.2.1 и Angular Material, интерфейс на английском.
 
-## Development server
+## Как запустить
 
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Проверено с Node.js **22.23.3** и npm **10.9.9**. Глобальные пакеты не нужны.
 
 ```bash
-ng generate component component-name
+git clone https://github.com/shokoladniyVzhuh/skyeng-task-manager.git
+cd skyeng-task-manager
+npm install
+npm run api
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Оставьте API работающим и в другом терминале из той же папки выполните `npm start`.
+Откройте [приложение](http://localhost:4200/tasks); API работает на `http://localhost:3000`.
+Mock — json-server 0.17.4 с задержкой 800 мс. Изменения сохраняются в `db.json`.
+Проверки: `npm run build` и `npm test -- --watch=false`.
 
-```bash
-ng generate --help
-```
+## Решения и компромиссы
 
-## Building
+- Фильтр берётся из URL (`/tasks?status=done`): работают прямые ссылки, перезагрузка и история браузера. Отсутствующий или неизвестный статус означает All; All удаляет параметр.
+- Фильтрация выполняется на сервере через HttpClient. RxJS `switchMap` отменяет предыдущую загрузку при смене фильтра, поэтому старый ответ не заменяет новый список.
+- Состояние списка хранится в потоке RxJS, блокировки и ошибки действий — в сигналах страницы. Сортировка по дате выполняется на клиенте, по умолчанию новые задачи сверху.
+- Создание — в диалоге с template-driven формой: название проверяется на пробелы и длину, повторная отправка блокируется, при ошибке введённый текст сохраняется.
+- После создания список обновляется с текущим фильтром. Если новая задача ему не подходит, она не показывается; сообщение «Task created.» подтверждает создание.
+- Статус меняется после успешного PATCH, затем список перечитывается. Пока PATCH выполняется, эта задача заблокирована. Ошибка сохраняет прежний статус; для ошибки загрузки списка есть Try again. Полноценный store и оптимистическое обновление пока не добавлены.
 
-To build the project run:
+## Что дальше
 
-```bash
-ng build
-```
+Улучшить вёрстку для 360px и проверить весь сценарий с клавиатуры и скринридером; добавить оптимистическую смену статуса и поиск. Сейчас фильтры имеют фиксированную минимальную ширину, а статус оформлен отключённой кнопкой. Также стоит уменьшить начальный пакет: сборка выдаёт предупреждение о превышении порога 500 КБ.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Использование ИИ
 
-## Running unit tests
+Использовал ИИ для объяснений Angular и RxJS, разбора требований и проверки кода; ассистент обновил и дополнил тесты, подготовил README. Проверки: сборка, тесты Vitest и браузерные сценарии фильтра, перезагрузки и истории с подменёнными GET-ответами.
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Время и дополнительные задания
 
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Около **15–16 часов**, включая изучение Angular. Сделаны **★1** (фильтр в URL) и **★4** (тесты API-сервиса и переходов статусов, а также страницы, формы и сортировки). **★2, ★3 и ★5** пока не выполнены; обязательная функциональность реализована.
