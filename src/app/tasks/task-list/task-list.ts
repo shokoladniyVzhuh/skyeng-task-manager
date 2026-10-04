@@ -37,15 +37,17 @@ import { Task, TaskStatus } from '../task.types';
 
           <mat-card-footer>
             <div>
-              <span class="task-status">{{ statusLabels[task.status] }}</span>
+              <button type="button" matButton="outlined" disabled>
+                {{ statusLabels[task.status] }}
+              </button>
               @if (nextStatus(task.status); as next) {
                 <button
                   type="button"
-                  matButton="outlined"
+                  matButton="filled"
                   [disabled]="pendingStatusIds().has(task.id)"
                   (click)="requestStatusChange(task, next)"
                 >
-                  Move to {{ statusLabels[next] }}
+                  {{ statusLabels[next] }}
                 </button>
               }
             </div>
